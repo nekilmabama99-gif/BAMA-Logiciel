@@ -754,6 +754,11 @@ let QR_PERSONNALISE_DATA_URL = '';  // QR code personnalisé de l'établissement
 
 const fmt = n => (Number(n)||0).toLocaleString('fr-FR') + ' FCFA';
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+// Numéro de version du logiciel, affiché dans Paramètres pour faciliter le support (savoir
+// quelle version un établissement utilise). À incrémenter à chaque nouvelle build envoyée à un
+// client — garder aligné avec la "version" du package.json (Electron/Capacitor) par cohérence.
+const VERSION_LOGICIEL = '1.0.0';
+
 const esc = s => (s===undefined||s===null) ? '' : String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
 // Convertit une valeur saisie manuellement dans une case de note en nombre borné [0, 20].
@@ -4793,6 +4798,8 @@ function renderParametres(){
       <button class="btn gold" type="submit">Ajouter</button>
     </form>
   </div>
+
+  <p class="muted" style="text-align:center;margin:18px 0 6px 0;">Gestion Établissement — Version ${esc(VERSION_LOGICIEL)}</p>
   `;
 }
 
