@@ -1,0 +1,47 @@
+name: Build installeurs
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            script: dist:win
+            artifact: windows-installer
+            path: dist/*.exe
+          - os: macos-latest
+            script: dist:mac
+            artifact: mac-installer
+            path: dist/*.dmg
+          - os: ubuntu-latest
+            script: dist:linux
+            artifact: linux-installer
+            path: dist/*.AppImage
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Installer les dépendances
+        run: npm install
+
+      - name: Construire l'installeur
+        run: npm run ${{ matrix.script }}
+
+      - name: Publier l'installeur en artifact téléchargeable
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.path }}
