@@ -34,14 +34,28 @@ jobs:
         with:
           node-version: 20
 
+      # Localise automatiquement le dossier du projet Electron dans le dépôt (celui qui
+      # contient main.js), qu'il soit à la racine ou dans un sous-dossier (ex. "app/").
+      # Évite un échec silencieux si le projet n'est pas placé exactement à la racine du dépôt.
+      - name: Localiser le projet Electron
+        id: locate
+        shell: bash
+        run: |
+          DIR=$(dirname "$(find . -maxdepth 4 -name main.js -not -path '*/node_modules/*' | head -n1)")
+          if [ -z "$DIR" ] || [ "$DIR" = "." ]; then DIR="."; fi
+          echo "Projet Electron trouvé dans : $DIR"
+          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
+
       - name: Installer les dépendances
+        working-directory: ${{ steps.locate.outputs.dir }}
         run: npm install
 
       - name: Construire l'installeur
+        working-directory: ${{ steps.locate.outputs.dir }}
         run: npm run ${{ matrix.script }}
 
       - name: Publier l'installeur en artifact téléchargeable
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
-          path: ${{ matrix.path }}
+          path: ${{ steps.locate.outputs.dir }}/${{ matrix.path }}
