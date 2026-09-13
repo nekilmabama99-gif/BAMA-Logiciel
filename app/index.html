@@ -124,6 +124,30 @@
   }
   .content{padding:26px 32px 60px 32px;overflow-y:auto;}
 
+  /* Recherche globale (topbar) */
+  .recherche-globale-wrap{position:relative;flex:1;max-width:280px;margin:0 14px;}
+  #recherche-globale{
+    width:100%;font-size:13px;padding:8px 12px;border:1px solid var(--line);
+    border-radius:var(--radius);outline:none;background:var(--bg,#f7f6f2);
+  }
+  #recherche-globale:focus{border-color:var(--gold);}
+  .recherche-globale-resultats{
+    position:absolute;top:calc(100% + 4px);left:0;right:0;z-index:50;
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    box-shadow:0 8px 24px rgba(0,0,0,.12);max-height:320px;overflow-y:auto;display:none;
+  }
+  .recherche-globale-resultats.visible{display:block;}
+  .recherche-globale-resultats .item{
+    display:flex;justify-content:space-between;gap:10px;padding:9px 12px;cursor:pointer;
+    font-size:13px;border-bottom:1px solid var(--line);
+  }
+  .recherche-globale-resultats .item:last-child{border-bottom:none;}
+  .recherche-globale-resultats .item:hover{background:var(--bg,#f7f6f2);}
+  .recherche-globale-resultats .item .muted-inline{color:var(--ink-soft);font-size:11.5px;white-space:nowrap;}
+  .recherche-globale-resultats .item.vide{color:var(--ink-soft);cursor:default;}
+  .recherche-globale-resultats .item.vide:hover{background:transparent;}
+  @media (max-width:900px){ .recherche-globale-wrap{max-width:none;order:3;flex-basis:100%;margin:8px 0 0 0;} }
+
   /* KPI cards */
   .kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px;margin-bottom:26px;}
   .kpi{
@@ -228,12 +252,17 @@
   /* Print area (hidden on screen) */
   #print-area{display:none;}
   .receipt, .bulletin{font-family:var(--sans);color:#111;max-width:560px;margin:0 auto;}
+  /* Documents imprimés en paysage (fiche de paie annuelle, emploi du temps) : la largeur
+     A4 portrait (560px) hérite de .bulletin mais est trop étroite en paysage, laissant le
+     contenu coincé au centre de la feuille. On élargit pour occuper toute la largeur utile. */
+  .bulletin.fiche-paie, .bulletin.emploi-temps-print{max-width:100%;width:100%;}
   .receipt h2, .bulletin h2{font-family:var(--serif);color:var(--navy);margin:0 0 1px 0;font-size:16px;text-align:center;}
   .doc-logo{display:block;max-width:70px;max-height:70px;margin:0 auto 4px auto;object-fit:contain;}
   .doc-officiel{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:6px 8px;margin-bottom:8px;line-height:1.4;}
   .doc-col-gauche{flex:1 1 160px;text-align:left;min-width:0;overflow-wrap:break-word;}
   .doc-col-centre{flex:0 1 auto;text-align:center;max-width:38%;min-width:0;overflow-wrap:break-word;}
   .doc-col-centre h2{margin:0;overflow-wrap:break-word;}
+  .doc-etab-tel{font-size:9.5px;color:var(--ink-soft);margin-top:1px;}
   .doc-col-droite{flex:1 1 160px;text-align:right;min-width:0;overflow-wrap:break-word;}
   .table-emploi td, .table-emploi th{font-size:11px;padding:4px 5px;text-align:center;}
   .table-emploi .col-creneau{white-space:nowrap;font-size:10px;text-align:left;background:#fafaf8;}
@@ -389,6 +418,39 @@
   .attestation.avertissement .attestation-titre-doc, .attestation.avertissement h1, .attestation.avertissement .attestation-ornement, .attestation.avertissement .attestation-mention{color:var(--red);}
   .attestation.avertissement .attestation-nom{color:var(--red);border-color:var(--red);}
 
+  /* ---------- Attestations d'honneur (félicitations, reconnaissance) : ce sont des documents
+     de valorisation à encadrer/afficher, pas des pièces administratives — mise en page dédiée
+     façon diplôme, plein format paysage, sans en-tête ministère/pays. (L'avis de baisse de
+     résultats ci-dessus reste volontairement en portrait avec en-tête officiel : c'est un
+     document de suivi administratif, pas une distinction à afficher.) ---------- */
+  .attestation-honneur{
+    font-family:var(--serif); color:var(--ink); box-sizing:border-box; position:relative;
+    overflow:hidden; width:100%; max-width:277mm; height:186mm; margin:0 auto; padding:10mm 22mm;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    background:var(--paper); border:2.5pt solid var(--gold);
+  }
+  .attestation-honneur::before{ content:''; position:absolute; inset:6mm; border:1pt solid var(--navy); pointer-events:none; }
+  .attestation-honneur::after{ content:''; position:absolute; inset:8mm; border:0.6pt solid var(--gold); opacity:.55; pointer-events:none; }
+  .attestation-honneur .attestation-coin{ position:absolute; width:13mm; height:13mm; border:2pt solid var(--gold); z-index:1; }
+  .attestation-honneur .attestation-coin.haut-gauche{ top:11mm; left:11mm; border-right:none; border-bottom:none; }
+  .attestation-honneur .attestation-coin.haut-droit{ top:11mm; right:11mm; border-left:none; border-bottom:none; }
+  .attestation-honneur .attestation-coin.bas-gauche{ bottom:11mm; left:11mm; border-right:none; border-top:none; }
+  .attestation-honneur .attestation-coin.bas-droit{ bottom:11mm; right:11mm; border-left:none; border-top:none; }
+  .attestation-honneur .attestation-watermark{ width:42%; opacity:.06; }
+  .attestation-honneur > *{ position:relative; z-index:1; }
+  .attestation-honneur .attestation-logo{ max-width:16mm; max-height:16mm; margin-bottom:2mm; flex-shrink:0; }
+  .attestation-honneur .attestation-titre-doc{ font-size:12px; letter-spacing:.4em; text-transform:uppercase; color:var(--gold); }
+  .attestation-honneur h1{ font-family:var(--serif); font-size:34px; color:var(--navy); letter-spacing:.07em; text-transform:uppercase; margin:3mm 0 1.5mm 0; }
+  .attestation-honneur .attestation-souslabel{ font-size:12px; color:var(--ink-soft); font-style:italic; margin-bottom:5mm; }
+  .attestation-honneur .attestation-ornement{ font-size:18px; color:var(--gold); letter-spacing:.6em; margin:0 0 5mm 0; }
+  .attestation-honneur .attestation-texte{ font-size:13.5px; line-height:1.75; max-width:195mm; margin:0 auto 4mm auto; }
+  .attestation-honneur .attestation-nom{ font-family:var(--serif); font-size:30px; color:var(--gold); border-bottom:1.5pt solid var(--gold); display:inline-block; padding:2mm 16mm 2.5mm 16mm; margin:1mm 0 5mm 0; }
+  .attestation-honneur .attestation-mention{ font-size:15px; font-weight:700; color:var(--navy); margin-bottom:5mm; font-family:var(--sans); max-width:200mm; }
+  .attestation-honneur .attestation-sceau{ width:17mm; height:17mm; margin:0 0 2mm 0; opacity:.9; flex-shrink:0; }
+  .attestation-honneur .signature-table{ width:100%; max-width:230mm; margin-top:auto; padding-top:1mm; flex-shrink:0; }
+  .attestation-honneur .sig-label{ font-size:11px; }
+  .attestation-honneur .sig-line{ margin-top:11mm; }
+
   /* ---------- Carte scolaire (badge élève, format carte de crédit CR80, recto/verso) ---------- */
   .carte-scolaire-paire{display:flex;gap:6mm;align-items:flex-start;page-break-inside:avoid;}
   .carte-scolaire{
@@ -435,7 +497,7 @@
     body *{visibility:hidden;}
     #print-area, #print-area *{visibility:visible;}
     #print-area{display:block;position:absolute;left:0;top:0;width:100%;padding:14px;}
-    .bulletin, .receipt, .certificat, .attestation, .carte-scolaire, .carte-scolaire-paire, .cartes-grille{page-break-inside:avoid;}
+    .bulletin, .receipt, .certificat, .attestation, .attestation-honneur, .carte-scolaire, .carte-scolaire-paire, .cartes-grille{page-break-inside:avoid;}
     @page{ size:A4; margin:10mm; }
   }
 
@@ -458,6 +520,11 @@
   }
   .code-modal .code-modal-err{color:var(--red); font-size:13px; margin:-8px 0 12px 0; display:none;}
   .code-modal-actions{display:flex; justify-content:flex-end; gap:10px;}
+  /* Variante large : formulaire d'édition complet (fiche élève) plutôt qu'une simple saisie. */
+  .code-modal.code-modal-large{width:640px; max-width:94vw; max-height:88vh; overflow-y:auto;}
+  .code-modal.code-modal-large h3{margin:0 0 14px 0; font-family:var(--serif); color:var(--navy);}
+  .code-modal.code-modal-large .form-grid{margin-bottom:6px;}
+  .code-modal.code-modal-large input, .code-modal.code-modal-large select{margin-bottom:0;}
 
   .print-preview-backdrop{
     position:fixed; inset:0; background:rgba(20,24,30,0.65);
@@ -611,6 +678,10 @@
       <div class="sub" id="page-sub">Vue d'ensemble de l'établissement</div>
     </div>
     <input class="school-name-input" id="school-name" value="Lycée Privé — nom de l'établissement" title="Nom de l'établissement">
+    <div class="recherche-globale-wrap">
+      <input id="recherche-globale" placeholder="Rechercher un élève (nom, matricule)…" autocomplete="off">
+      <div id="recherche-globale-resultats" class="recherche-globale-resultats"></div>
+    </div>
     <div style="display:flex;align-items:center;gap:8px;">
       <label for="annee-select" class="muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.04em;">Année</label>
       <select id="annee-select" style="min-width:120px;"></select>
@@ -671,6 +742,7 @@ const DEFAULT_PARAMS = {
   directeurNom: '',
   directeurTelephone: '',
   directeurTitre: 'Directeur', // ex: "Directeur", "Proviseur", "Directrice", "Proviseure"...
+  etablissementTelephone: '', // numéro(s) de l'établissement, affiché sur tous les documents délivrés (bulletins, certificats, reçus...)
   etablissementDevise: '', // devise propre à l'établissement, affichée en haut à gauche du bulletin
   lieuCarteScolaire: '', // lieu de délivrance affiché au verso de la carte scolaire (ex: "Ouagadougou")
   carte: {
@@ -796,6 +868,7 @@ let ANNEES = [];            // [{ id, libelle }] — historique des années cré
 let anneeActiveId = null;   // année scolaire "en cours" — celle où on saisit
 let anneeAffichee = null;   // année sélectionnée dans le menu déroulant (peut être une année archivée, consultée en lecture seule)
 let ARCHIVES = {};          // { [anneeId]: { libelle, eleves, notes, decisions, finances, clotureLe } } — snapshot au moment de la bascule
+let JOURNAL = [];           // [{ date, utilisateur, action, details }] — journal d'audit des actions sensibles (voir journaliser())
 
 let LOGO_DATA_URL = '';     // logo de l'établissement (data URL base64), affiché sur tous les documents imprimés
 let CACHET_SIGNATURE_DATA_URL = ''; // cachet/signature du directeur ou proviseur (data URL), affiché sur la carte scolaire
@@ -901,6 +974,68 @@ async function imageDBSet(cle, valeur){
   }catch(e){ console.error("Erreur d'écriture d'image", cle, e); showToast("Erreur d'enregistrement d'une image (mémoire pleine ?)"); return false; }
 }
 
+/* ---------- Stockage IndexedDB générique pour les données volumineuses non-image (archives
+   multi-années) ---------- Même logique que pour les photos ci-dessus : localStorage est
+   plafonné à quelques Mo, et ARCHIVES (un instantané complet élèves+notes+finances par année
+   scolaire écoulée) grossit chaque année sans jamais être purgé. Un établissement de taille
+   moyenne cumulant plusieurs années peut donc finir par saturer localStorage. Base IndexedDB
+   séparée de celle des images pour rester simple (versions/migrations indépendantes). */
+let _donneesDbPromise = null;
+function ouvrirDonneesDB(){
+  if(!_donneesDbPromise){
+    _donneesDbPromise = new Promise((resolve, reject)=>{
+      const req = indexedDB.open('gestion_ecole_donnees', 1);
+      req.onupgradeneeded = ()=>{ req.result.createObjectStore('donnees'); };
+      req.onsuccess = ()=>resolve(req.result);
+      req.onerror = ()=>reject(req.error);
+    });
+  }
+  return _donneesDbPromise;
+}
+async function donneeDBGet(cle){
+  try{
+    const db = await ouvrirDonneesDB();
+    return await new Promise((resolve, reject)=>{
+      const tx = db.transaction('donnees','readonly');
+      const req = tx.objectStore('donnees').get(cle);
+      req.onsuccess = ()=>resolve(req.result===undefined ? null : req.result);
+      req.onerror = ()=>reject(req.error);
+    });
+  }catch(e){ console.error('Erreur de lecture IndexedDB', cle, e); return null; }
+}
+async function donneeDBSet(cle, valeur){
+  try{
+    const db = await ouvrirDonneesDB();
+    return await new Promise((resolve, reject)=>{
+      const tx = db.transaction('donnees','readwrite');
+      const store = tx.objectStore('donnees');
+      if(valeur!==null && valeur!==undefined) store.put(valeur, cle); else store.delete(cle);
+      tx.oncomplete = ()=>resolve(true);
+      tx.onerror = ()=>reject(tx.error);
+    });
+  }catch(e){
+    console.error("Erreur d'écriture IndexedDB (archives)", cle, e);
+    alert("⚠ ÉCHEC DE L'ENREGISTREMENT DES ARCHIVES !\n\nLes archives de l'année écoulée n'ont PAS pu être sauvegardées (mémoire de stockage pleine ou inaccessible).\n\nFaites immédiatement une sauvegarde externe si possible (Paramètres → Sauvegarde), puis fermez et rouvrez l'application. Si le problème persiste, contactez le support.");
+    return false;
+  }
+}
+
+// Protection contre le recul délibéré de l'horloge système pour prolonger artificiellement une
+// licence expirée : on mémorise la date la plus avancée jamais vue par l'application (persistée
+// dans localStorage, indépendante de l'horloge courante) et on l'utilise, plutôt que Date.now()
+// brut, pour toute comparaison d'expiration de licence. Reculer l'horloge ne fait donc plus
+// reculer la date effective utilisée par le contrôle — elle ne peut que progresser (cliquet).
+// Volontairement NON bloquant pour le reste de l'application (pas d'écran d'erreur si l'horloge
+// semble incohérente) : un utilisateur ayant simplement corrigé une horloge auparavant mal
+// réglée (avance accidentelle) ne doit jamais se retrouver enfermé hors de ses propres données.
+function horodatageEffectifLicence(){
+  const maintenant = Date.now();
+  const vu = Number(storageGet('horodatage-max-vu')) || 0;
+  const effectif = Math.max(maintenant, vu);
+  if(effectif > vu) storageSet('horodatage-max-vu', effectif);
+  return effectif;
+}
+
 /* ---------- Licence / activation ----------
    Signature asymétrique (ECDSA P-256) : ce fichier ne contient QUE la clé
    PUBLIQUE, capable de vérifier une licence mais jamais d'en fabriquer une.
@@ -946,7 +1081,7 @@ async function decoderEtVerifierLicence(licenceBrute, clientName){
     const payloadBytes = b64urlVersBytes(payloadB64);
     const payload = JSON.parse(new TextDecoder().decode(payloadBytes));
     if(normaliserTexte(payload.n) !== normaliserTexte(clientName)) return null;
-    if(payload.exp && new Date(payload.exp).getTime() < Date.now()) return { expiree:true, payload };
+    if(payload.exp && new Date(payload.exp).getTime() < horodatageEffectifLicence()) return { expiree:true, payload };
     const cle = await obtenirClePublique();
     const sig = b64urlVersBytes(sigB64);
     const ok = await crypto.subtle.verify(
@@ -968,7 +1103,7 @@ async function estActive(){
   // activation dans localStorage et débloquer le logiciel sans aucune licence valide.
   const resultat = await decoderEtVerifierLicence(a.licence, a.clientName);
   if(!(resultat && resultat.valide)) return false;
-  if(a.exp && new Date(a.exp).getTime() < Date.now()) return false;
+  if(a.exp && new Date(a.exp).getTime() < horodatageEffectifLicence()) return false;
   // Recalculé à chaque démarrage (pas seulement comparé à une valeur stockée) : copier tout le
   // dossier de données de l'app sur un autre ordinateur ne suffit donc pas à contourner le
   // verrouillage machine, puisque l'identifiant est recalculé sur la machine réelle à chaque fois.
@@ -1072,6 +1207,7 @@ async function loadAll(){
   if(PARAMS.directeurNom===undefined) PARAMS.directeurNom = '';
   if(PARAMS.etablissementDevise===undefined) PARAMS.etablissementDevise = '';
   if(PARAMS.directeurTelephone===undefined) PARAMS.directeurTelephone = '';
+  if(PARAMS.etablissementTelephone===undefined) PARAMS.etablissementTelephone = '';
   if(PARAMS.lieuCarteScolaire===undefined) PARAMS.lieuCarteScolaire = '';
   if(PARAMS.directeurTitre===undefined) PARAMS.directeurTitre = 'Directeur';
   PARAMS.carte = Object.assign({}, DEFAULT_PARAMS.carte, PARAMS.carte||{});
@@ -1143,6 +1279,7 @@ async function loadAll(){
   if(PARAMS.devise===undefined) PARAMS.devise = 'La Patrie ou la Mort, Nous Vaincrons';
   if(PARAMS.ministere===undefined) PARAMS.ministere = "MINISTÈRE DE L'ÉDUCATION NATIONALE, DE L'ALPHABÉTISATION ET DE LA PROMOTION DES LANGUES NATIONALES";
   ELEVES.forEach(e => { if(e.aDejaRedouble===undefined) e.aDejaRedouble = false; });
+  ELEVES.forEach(e => { if(e.classeDejaDoublee===undefined) e.classeDejaDoublee = ''; });
 
   // Migration : matières et coefficients indépendants par classe (avant, une seule liste globale).
   // On récupère l'ancienne liste globale comme point de départ pour chaque classe existante.
@@ -1161,7 +1298,18 @@ async function loadAll(){
 
   ANNEES = storageGet('annees-data') || [];
   anneeActiveId = storageGet('annee-active-data') || null;
-  ARCHIVES = storageGet('archives-data') || {};
+  // ARCHIVES vit désormais dans IndexedDB (voir donneeDBGet/donneeDBSet ci-dessus), plus dans
+  // localStorage — migration automatique et silencieuse de l'ancien emplacement au premier
+  // chargement suivant la mise à jour, puis nettoyage de l'ancienne copie.
+  const archivesLocalStorageAncien = storageGet('archives-data');
+  if(archivesLocalStorageAncien){
+    ARCHIVES = archivesLocalStorageAncien;
+    await donneeDBSet('archives-data', ARCHIVES);
+    localStorage.removeItem(STORAGE_PREFIX + 'archives-data');
+  } else {
+    ARCHIVES = (await donneeDBGet('archives-data')) || {};
+  }
+  JOURNAL = (await donneeDBGet('journal-data')) || [];
   if(ANNEES.length===0 || !anneeActiveId){
     const debut = new Date().getMonth() >= 7 ? new Date().getFullYear() : new Date().getFullYear()-1;
     const premiereAnnee = { id: uid(), libelle: `${debut}-${debut+1}` };
@@ -1176,7 +1324,10 @@ async function loadAll(){
   // l'établissement (comparaison classe actuelle / classe de l'année précédente) —
   // ne fait que confirmer un « Oui », jamais l'inverse (un redoublement survenu
   // avant l'arrivée dans l'établissement reste une saisie manuelle sur la fiche élève).
-  ELEVES.forEach(e => { if(estRedoublantAnneeCourante(e.id)) e.aDejaRedouble = true; });
+  // Le redoublement doit rester acquis jusqu'à la fin du cycle (collège/lycée), même
+  // après que l'élève est passé en classe supérieure l'année suivante : on fige donc ici
+  // le nom de la classe doublée, et pas seulement le drapeau aDejaRedouble.
+  ELEVES.forEach(e => { if(estRedoublantAnneeCourante(e.id)){ e.aDejaRedouble = true; if(!e.classeDejaDoublee) e.classeDejaDoublee = e.classe; } });
 
   // Migration des anciennes notes (une note unique par matière/trimestre) vers le nouveau format devoir1/devoir2/composition
   const needsMigration = NOTES.some(n => n.devoir1===undefined && n.composition===undefined);
@@ -1224,7 +1375,24 @@ const saveProfPrincipal = () => save('prof-principal-data', PROF_PRINCIPAL);
 const savePaie = () => save('paie-data', PAIE);
 const saveAnnees = () => save('annees-data', ANNEES);
 const saveAnneeActive = () => save('annee-active-data', anneeActiveId);
-const saveArchives = () => save('archives-data', ARCHIVES);
+const saveArchives = () => donneeDBSet('archives-data', ARCHIVES);
+const saveJournal = () => donneeDBSet('journal-data', JOURNAL);
+// Journal d'audit : trace qui a fait quoi et quand, pour les actions sensibles (suppressions,
+// finances, comptes utilisateurs, bascule d'année, restauration). Volontairement pas exhaustif
+// (la saisie courante des notes n'est pas journalisée, sous peine de noyer le journal) — il
+// couvre les actions destructrices ou administratives pour lesquelles la traçabilité compte le
+// plus. Stocké dans IndexedDB comme les archives (peut grossir sur plusieurs années) et jamais
+// écrasé par une restauration de sauvegarde (voir importBackup).
+function journaliser(action, details){
+  JOURNAL.push({
+    date: new Date().toISOString(),
+    utilisateur: UTILISATEUR_COURANT ? `${UTILISATEUR_COURANT.nom} (${UTILISATEUR_COURANT.roleLabel||'—'})` : 'Accès libre (aucun compte)',
+    action, details: details||''
+  });
+  // Plafonné pour éviter une croissance illimitée : conserve les 5000 dernières actions.
+  if(JOURNAL.length > 5000) JOURNAL = JOURNAL.slice(JOURNAL.length - 5000);
+  saveJournal();
+}
 
 // Supprime, dans TOUS les autres modules, les données rattachées à un élève : sans ça, supprimer
 // un élève ne retirait que sa fiche (voir data-action="del-eleve"), en laissant orphelines ses
@@ -1306,7 +1474,90 @@ function demanderSaisie(message, {password=false, placeholder=''} = {}){
   });
 }
 
-// Comme demanderSaisie, mais pour choisir une valeur dans une liste (menu déroulant) plutôt que
+// Ouvre une modale d'édition complète de la fiche d'un élève (identité, naissance, filiation,
+// redoublement...) — champs qui n'étaient auparavant modifiables qu'à l'inscription, obligeant
+// sinon à supprimer puis recréer l'élève pour corriger une simple erreur de saisie.
+function ouvrirModaleEditionEleve(eleveId){
+  return new Promise(resolve=>{
+    const el = ELEVES.find(x=>x.id===eleveId);
+    if(!el) return resolve(false);
+    const root = document.getElementById('code-modal-root');
+    root.innerHTML = `
+      <div class="code-modal-backdrop">
+        <div class="code-modal code-modal-large">
+          <h3>Modifier la fiche de ${esc(el.nom)} ${esc(el.prenom)}</h3>
+          <form id="form-edit-eleve" class="form-grid">
+            <div class="field"><label>Numéro (matricule)</label><input name="matricule" required value="${esc(el.matricule)||''}"></div>
+            <div class="field"><label>Nom</label><input name="nom" required value="${esc(el.nom)||''}"></div>
+            <div class="field"><label>Prénom</label><input name="prenom" required value="${esc(el.prenom)||''}"></div>
+            <div class="field"><label>Sexe</label><select name="sexe"><option value="F" ${el.sexe==='F'?'selected':''}>F</option><option value="M" ${el.sexe==='M'?'selected':''}>M</option></select></div>
+            <div class="field"><label>Date de naissance</label><input name="dateNaissance" type="date" value="${esc(el.dateNaissance)||''}"></div>
+            <div class="field"><label>Lieu de naissance</label><input name="lieuNaissance" value="${esc(el.lieuNaissance)||''}"></div>
+            <div class="field"><label>Nom du père</label><input name="nomPere" value="${esc(el.nomPere)||''}"></div>
+            <div class="field"><label>Nom de la mère</label><input name="nomMere" value="${esc(el.nomMere)||''}"></div>
+            <div class="field"><label>Statut</label><select name="statut" id="edit-eleve-statut"><option value="Actif" ${el.statut!=='Inactif'?'selected':''}>Actif</option><option value="Inactif" ${el.statut==='Inactif'?'selected':''}>Inactif</option></select></div>
+            <div class="field" id="edit-eleve-motif-sortie-wrap" style="display:${el.statut==='Inactif'?'':'none'};">
+              <label>Motif (abandon, départ...)</label>
+              <input name="motifSortie" id="edit-eleve-motif-sortie" placeholder="ex: Abandon en cours d'année" value="${esc(el.motifSortie)||''}">
+            </div>
+            <div class="field"><label>Statut d'affectation</label><select name="statutAffectation"><option ${el.statutAffectation==='Affecté'?'selected':''}>Affecté</option><option ${el.statutAffectation==='Non affecté'?'selected':''}>Non affecté</option></select></div>
+            <div class="field"><label>A déjà redoublé avant son arrivée</label><select name="aDejaRedouble" id="edit-eleve-a-deja-redouble"><option value="" ${!el.aDejaRedouble?'selected':''}>Non</option><option value="1" ${el.aDejaRedouble?'selected':''}>Oui</option></select></div>
+            <div class="field" id="edit-eleve-classe-doublee-wrap" style="display:${el.aDejaRedouble?'':'none'};">
+              <label>Classe déjà doublée</label>
+              <input name="classeDejaDoublee" id="edit-eleve-classe-doublee" placeholder="ex: 6ème" value="${esc(el.classeDejaDoublee)||''}">
+            </div>
+          </form>
+          <p class="code-modal-err" id="edit-eleve-err"></p>
+          <div class="code-modal-actions">
+            <button class="btn secondary small" id="edit-eleve-cancel" type="button">Annuler</button>
+            <button class="btn small" id="edit-eleve-ok" type="button">Enregistrer</button>
+          </div>
+        </div>
+      </div>`;
+    const form = document.getElementById('form-edit-eleve');
+    const errEl = document.getElementById('edit-eleve-err');
+    const cleanup = (val)=>{ root.innerHTML=''; resolve(val); };
+    document.getElementById('edit-eleve-cancel').addEventListener('click', ()=>cleanup(false));
+    document.getElementById('edit-eleve-a-deja-redouble').addEventListener('change', (e)=>{
+      document.getElementById('edit-eleve-classe-doublee-wrap').style.display = e.target.value==='1' ? '' : 'none';
+    });
+    document.getElementById('edit-eleve-statut').addEventListener('change', (e)=>{
+      document.getElementById('edit-eleve-motif-sortie-wrap').style.display = e.target.value==='Inactif' ? '' : 'none';
+    });
+    document.getElementById('edit-eleve-ok').addEventListener('click', async ()=>{
+      const f = new FormData(form);
+      const matricule = (f.get('matricule')||'').trim();
+      const nom = (f.get('nom')||'').trim();
+      const prenom = (f.get('prenom')||'').trim();
+      if(!matricule || !nom || !prenom){
+        errEl.textContent = 'Matricule, nom et prénom sont obligatoires.';
+        errEl.style.display = 'block';
+        return;
+      }
+      const doublonMatricule = ELEVES.find(x=>x.id!==el.id && x.matricule && x.matricule.trim().toLowerCase()===matricule.toLowerCase());
+      if(doublonMatricule){
+        errEl.textContent = `Le matricule « ${matricule} » est déjà attribué à ${doublonMatricule.nom} ${doublonMatricule.prenom} (classe ${doublonMatricule.classe}).`;
+        errEl.style.display = 'block';
+        return;
+      }
+      el.matricule = matricule; el.nom = nom; el.prenom = prenom;
+      el.sexe = f.get('sexe')||'';
+      el.dateNaissance = f.get('dateNaissance')||'';
+      el.lieuNaissance = (f.get('lieuNaissance')||'').trim();
+      el.nomPere = (f.get('nomPere')||'').trim();
+      el.nomMere = (f.get('nomMere')||'').trim();
+      el.statutAffectation = f.get('statutAffectation')||'Non affecté';
+      el.statut = f.get('statut')==='Inactif' ? 'Inactif' : 'Actif';
+      el.motifSortie = el.statut==='Inactif' ? (f.get('motifSortie')||'').trim() : '';
+      el.aDejaRedouble = f.get('aDejaRedouble')==='1';
+      el.classeDejaDoublee = el.aDejaRedouble ? (f.get('classeDejaDoublee')||'').trim() : '';
+      await saveEleves();
+      cleanup(true);
+    });
+  });
+}
+
+
 // taper du texte libre. Retourne la valeur choisie, ou null si annulé.
 function demanderChoix(message, options){
   return new Promise(resolve=>{
@@ -1362,7 +1613,7 @@ function printHeader(){
   return `
     <div class="doc-officiel">
       <div class="doc-col-gauche doc-ministere">${esc(PARAMS.ministere)}</div>
-      <div class="doc-col-centre">${logo}<h2>${schoolName}</h2></div>
+      <div class="doc-col-centre">${logo}<h2>${schoolName}</h2>${PARAMS.etablissementTelephone?`<div class="doc-etab-tel">Tél. : ${esc(PARAMS.etablissementTelephone)}</div>`:''}</div>
       <div class="doc-col-droite">
         <div class="doc-pays">${esc(PARAMS.paysNom)}</div>
         <div class="doc-devise">${esc(PARAMS.devise)}</div>
@@ -1434,7 +1685,7 @@ function verifierRappelSauvegarde(){
   }
 }
 
-function exportBackup(){
+async function exportBackup(){
   const backup = {
     version: 2,
     date: new Date().toISOString(),
@@ -1446,11 +1697,31 @@ function exportBackup(){
     decisions: DECISIONS, profPrincipal: PROF_PRINCIPAL, paie: PAIE,
     annees: ANNEES, archives: ARCHIVES, anneeActiveId, utilisateurs: UTILISATEURS,
   };
-  const blob = new Blob([JSON.stringify(backup, null, 2)], {type:'application/json'});
+  const json = JSON.stringify(backup, null, 2);
+  const dateStr = new Date().toISOString().slice(0,10);
+  // Compression gzip native (CompressionStream, intégrée au navigateur/WebView depuis 2020,
+  // aucune dépendance externe à embarquer) : les photos élèves en base64 représentent le plus
+  // gros du volume et se compressent mal, mais tout le reste (texte JSON répétitif) se réduit
+  // fortement — utile en particulier pour l'envoi par email ou clé USB. Repli silencieux sur du
+  // JSON brut non compressé si l'API est absente (anciennes WebView Android) : importBackup lit
+  // les deux formats indifféremment.
+  let blob, nomFichier;
+  if(typeof CompressionStream === 'function'){
+    try{
+      const flux = new Blob([json]).stream().pipeThrough(new CompressionStream('gzip'));
+      blob = await new Response(flux).blob();
+      nomFichier = `sauvegarde_etablissement_${dateStr}.json.gz`;
+    }catch(e){
+      console.error('Compression indisponible, sauvegarde non compressée :', e);
+    }
+  }
+  if(!blob){
+    blob = new Blob([json], {type:'application/json'});
+    nomFichier = `sauvegarde_etablissement_${dateStr}.json`;
+  }
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
-  const dateStr = new Date().toISOString().slice(0,10);
-  a.href = url; a.download = `sauvegarde_etablissement_${dateStr}.json`;
+  a.href = url; a.download = nomFichier;
   document.body.appendChild(a); a.click(); document.body.removeChild(a);
   URL.revokeObjectURL(url);
   storageSet('derniere-sauvegarde-le', new Date().toISOString());
@@ -1461,9 +1732,29 @@ function exportBackup(){
 function importBackup(file){
   const reader = new FileReader();
   reader.onload = async (e)=>{
+    let texteJson;
+    try{
+      const octets = new Uint8Array(e.target.result);
+      // Détection du format par les deux premiers octets (signature gzip 0x1f 0x8b), plutôt que
+      // par l'extension du fichier : plus fiable si le fichier a été renommé ou joint par email.
+      const estGzip = octets.length>2 && octets[0]===0x1f && octets[1]===0x8b;
+      if(estGzip){
+        if(typeof DecompressionStream !== 'function'){
+          alert("Ce fichier de sauvegarde est compressé (.gz) mais cet appareil ne sait pas le décompresser.\n\nOuvrez-le plutôt depuis l'application de bureau (Windows/Electron), ou redemandez une sauvegarde non compressée.");
+          return;
+        }
+        const flux = new Blob([octets]).stream().pipeThrough(new DecompressionStream('gzip'));
+        texteJson = await new Response(flux).text();
+      } else {
+        texteJson = new TextDecoder('utf-8').decode(octets);
+      }
+    }catch(err){
+      alert("Fichier invalide : impossible de le lire ou de le décompresser.\n\nAucune donnée n'a été modifiée.");
+      return;
+    }
     let data;
     try{
-      data = JSON.parse(e.target.result);
+      data = JSON.parse(texteJson);
     }catch(err){
       alert("Fichier invalide : ce n'est pas un fichier de sauvegarde JSON lisible.\n\nAucune donnée n'a été modifiée.");
       return;
@@ -1517,13 +1808,17 @@ function importBackup(file){
       updateCrestDisplay();
       updateAnneeSelect();
       storageSet('derniere-sauvegarde-le', new Date().toISOString());
+      // Le journal d'audit n'est volontairement PAS écrasé par une restauration (il n'est pas
+      // inclus dans le fichier de sauvegarde) : une restauration doit rester elle-même tracée,
+      // pas effacer l'historique des actions précédentes.
+      journaliser('Restauration de sauvegarde', `${ecoleBackup} — ${nbEleves} élève(s), sauvegarde du ${dateBackup}`);
       showToast('Sauvegarde restaurée');
       render();
     }catch(err){
       showToast('Erreur pendant la restauration');
     }
   };
-  reader.readAsText(file);
+  reader.readAsArrayBuffer(file);
 }
 
 /* ---------- Navigation ---------- */
@@ -1550,6 +1845,63 @@ document.getElementById('nav').addEventListener('click', (e)=>{
   document.getElementById('page-sub').textContent = titles[currentTab][1];
   render();
 });
+
+/* ---------- Recherche globale (topbar) ----------
+   Recherche un élève par nom/prénom/matricule depuis n'importe quel onglet, et ouvre
+   directement sa fiche de modification (même mécanisme que le bouton "Modifier" de l'onglet
+   Élèves) — évite de devoir changer d'onglet et re-taper son nom dans le filtre local. */
+(function(){
+  const champ = document.getElementById('recherche-globale');
+  const resultatsEl = document.getElementById('recherche-globale-resultats');
+  if(!champ || !resultatsEl) return;
+
+  function rechercher(texte){
+    const q = normaliserTexte(texte.trim());
+    if(!q){ resultatsEl.classList.remove('visible'); resultatsEl.innerHTML=''; return; }
+    const correspond = ELEVES.filter(e=>{
+      const cible = normaliserTexte(`${e.nom} ${e.prenom} ${e.matricule||''}`);
+      return cible.includes(q);
+    }).slice(0, 8);
+    resultatsEl.innerHTML = correspond.length ? correspond.map(e=>`
+      <div class="item" data-id="${esc(e.id)}">
+        <span><strong>${esc(e.nom)} ${esc(e.prenom)}</strong></span>
+        <span class="muted-inline">${esc(e.classe)}${e.matricule?' · '+esc(e.matricule):''}</span>
+      </div>`).join('') : `<div class="item vide">Aucun élève trouvé</div>`;
+    resultatsEl.classList.add('visible');
+  }
+
+  champ.addEventListener('input', ()=> rechercher(champ.value));
+  champ.addEventListener('focus', ()=>{ if(champ.value.trim()) rechercher(champ.value); });
+  document.addEventListener('click', (e)=>{
+    if(!e.target.closest('.recherche-globale-wrap')) resultatsEl.classList.remove('visible');
+  });
+  champ.addEventListener('keydown', (e)=>{ if(e.key==='Escape'){ champ.blur(); resultatsEl.classList.remove('visible'); } });
+
+  resultatsEl.addEventListener('click', async (e)=>{
+    const item = e.target.closest('.item[data-id]');
+    if(!item) return;
+    resultatsEl.classList.remove('visible');
+    champ.value = '';
+    await allerVersEleve(item.dataset.id);
+  });
+})();
+
+async function allerVersEleve(id){
+  const el = ELEVES.find(e=>e.id===id);
+  if(!el) return;
+  anneeAffichee = anneeActiveId; // sort d'une éventuelle vue d'archive pour rejoindre l'année en cours
+  currentTab = 'eleves';
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab==='eleves'));
+  document.getElementById('page-title').textContent = titles.eleves[0];
+  document.getElementById('page-sub').textContent = titles.eleves[1];
+  CLASSES_TABLEAU_ETENDU.add(el.classe);
+  render();
+  const input = document.getElementById('filter-eleve-nom');
+  if(input) input.value = `${el.nom} ${el.prenom}`;
+  render();
+  const ok = await ouvrirModaleEditionEleve(id);
+  if(ok){ showToast('Fiche élève mise à jour'); render(); }
+}
 
 /* ---------- Render router ---------- */
 function render(){
@@ -1699,7 +2051,9 @@ function computeTrimestre(eleveId, trimestre){
 // notés dans cette matière) de la moyenne de chacun dans cette matière. Utilisé pour la
 // colonne « Moy. classe » du tableau de notes du bulletin.
 function moyennesClasseParMatiere(classe, trimestre){
-  const eleves = ELEVES.filter(e=>e.classe===classe);
+  // Élèves inactifs (partis en cours d'année) exclus : sinon leurs notes déjà saisies avant
+  // leur départ continuent de peser sur la moyenne de classe de leurs anciens camarades.
+  const eleves = ELEVES.filter(e=>e.classe===classe && e.statut!=='Inactif');
   const sommes = {}; // matiereId -> {total, count}
   eleves.forEach(e=>{
     NOTES.filter(n=>n.eleveId===e.id && n.trimestre===trimestre).forEach(n=>{
@@ -1755,7 +2109,8 @@ let _classementCacheActif = null;
 function classementClasse(classe, trimestre){
   const cle = classe+'|'+trimestre;
   if(_classementCacheActif && _classementCacheActif.has(cle)) return _classementCacheActif.get(cle);
-  const elevesClasse = ELEVES.filter(e=>e.classe===classe);
+  // Élèves inactifs exclus (voir moyennesClasseParMatiere ci-dessus pour la même raison).
+  const elevesClasse = ELEVES.filter(e=>e.classe===classe && e.statut!=='Inactif');
   const resultats = elevesClasse.map(e=>{
     const moy = trimestre==='ANNEE' ? moyenneAnnuelle(e.id) : computeTrimestre(e.id, trimestre).moyenneGenerale;
     return { eleveId: e.id, moyenne: moy };
@@ -1776,7 +2131,7 @@ function classementClasse(classe, trimestre){
 // Classement des élèves d'une classe pour UNE matière et un trimestre donnés (rang par matière,
 // distinct du rang général trimestriel). Sert à la fiche de vérification par matière.
 function classementParMatiere(classe, matiereId, trimestre){
-  const eleves = ELEVES.filter(e=>e.classe===classe);
+  const eleves = ELEVES.filter(e=>e.classe===classe && e.statut!=='Inactif');
   const resultats = eleves.map(e=>{
     const n = NOTES.find(x=>x.eleveId===e.id && x.matiereId===matiereId && x.trimestre===trimestre);
     const moyenne = n ? moyenneMatiere(n).moyenne : null;
@@ -1827,7 +2182,7 @@ function computeExamenBlanc(eleveId, examenBlancId){
 
 // Classement d'une classe pour un examen blanc donné.
 function classementExamenBlanc(classe, examenBlancId){
-  const elevesClasse = ELEVES.filter(e=>e.classe===classe);
+  const elevesClasse = ELEVES.filter(e=>e.classe===classe && e.statut!=='Inactif');
   const resultats = elevesClasse.map(e=>{
     const moy = computeExamenBlanc(e.id, examenBlancId).moyenneGenerale;
     return { eleveId: e.id, moyenne: moy };
@@ -2117,8 +2472,11 @@ async function basculerAnneeScolaire(nouveauLibelle){
         bilan.passent++;
       }
     } else {
-      // Redouble (ou décision non conclusive) : reste bloqué dans la même classe
+      // Redouble (ou décision non conclusive) : reste bloqué dans la même classe.
+      // On fige aussi le nom de la classe doublée : ce statut doit rester visible
+      // sur les bulletins jusqu'à la fin du cycle, même après un passage ultérieur.
       e.aDejaRedouble = true;
+      e.classeDejaDoublee = e.classe;
       bilan.redoublent++;
     }
   });
@@ -2556,8 +2914,12 @@ function renderEleves(){
       <div class="field"><label>Année d'enregistrement dans l'établissement</label><input name="anneeEnregistrement" value="${esc(anneeLibelle(anneeActiveId))}" placeholder="ex: 2025-2026"></div>
       <div class="field"><label>Frais annuel (FCFA)</label><input id="new-eleve-frais" name="fraisAnnuel" type="number" min="0"></div>
       <div class="field"><label>Statut</label><select name="statut"><option>Actif</option><option>Inactif</option></select></div>
-      <div class="field"><label>A déjà redoublé avant son arrivée dans l'établissement</label><select name="aDejaRedouble"><option value="">Non</option><option value="1">Oui</option></select>
+      <div class="field"><label>A déjà redoublé avant son arrivée dans l'établissement</label><select name="aDejaRedouble" id="new-eleve-a-deja-redouble"><option value="">Non</option><option value="1">Oui</option></select>
         <p class="muted" style="margin-top:4px;font-size:11.5px;">Un redoublement survenant au sein de l'établissement est désormais détecté et affiché automatiquement sur le bulletin — ce champ ne sert que pour un élève déjà redoublant à son arrivée.</p>
+      </div>
+      <div class="field" id="new-eleve-classe-doublee-wrap" style="display:none;">
+        <label>Classe déjà doublée</label>
+        <input name="classeDejaDoublee" id="new-eleve-classe-doublee" placeholder="ex: 6ème">
       </div>
       <button class="btn" type="submit">Ajouter l'élève</button>
     </form>
@@ -2628,6 +2990,7 @@ function renderClasseElevesPanel(classe, nomFilter){
                 ${e.statutSport==='Dispensé' ? `<input class="inline-num" style="width:120px;margin-top:3px;" data-action="edit-motif-sport" data-id="${e.id}" value="${esc(e.motifDispenseSport)||''}" placeholder="Motif (certif. médical...)">` : ''}
               </td>
               <td style="white-space:nowrap;">
+                <button class="btn secondary small" data-action="modifier-eleve" data-id="${e.id}">Modifier</button>
                 <button class="btn secondary small" data-action="changer-classe-eleve" data-id="${e.id}">Changer de classe</button>
                 <button class="btn danger small" data-action="del-eleve" data-id="${e.id}">Supprimer</button>
               </td>
@@ -2762,7 +3125,7 @@ function renderDisciplinePanel(trimestre, classe){
 }
 
 function renderGrilleSaisie(trimestre, classe, matiereId){
-  const eleves = ELEVES.filter(e=>e.classe===classe).sort((a,b)=>a.nom.localeCompare(b.nom));
+  const eleves = ELEVES.filter(e=>e.classe===classe && e.statut!=='Inactif').sort((a,b)=>a.nom.localeCompare(b.nom));
   const matiere = matieresPourClasse(classe).find(m=>m.id===matiereId);
   const rows = eleves.map(e=>{
     const n = NOTES.find(x=>x.eleveId===e.id && x.matiereId===matiereId && x.trimestre===trimestre);
@@ -2931,7 +3294,7 @@ function renderExamensBlancs(){
 }
 
 function renderGrilleBlanc(examenBlancId, classe, matiereId){
-  const eleves = ELEVES.filter(e=>e.classe===classe).sort((a,b)=>a.nom.localeCompare(b.nom));
+  const eleves = ELEVES.filter(e=>e.classe===classe && e.statut!=='Inactif').sort((a,b)=>a.nom.localeCompare(b.nom));
   const matiere = matieresPourClasse(classe).find(m=>m.id===matiereId);
   const rows = eleves.map(e=>{
     const n = NOTES_BLANC.find(x=>x.eleveId===e.id && x.matiereId===matiereId && x.examenBlancId===examenBlancId);
@@ -3395,7 +3758,7 @@ function buildCertificatScolariteHTML(eleveId){
       <h2>Certificat de scolarité</h2>
       <div class="certificat-corps">
         <p>${introTexte}</p>
-        <p class="certificat-eleve-nom"><strong>${esc(el.nom)} ${esc(el.prenom)}</strong>${naissance}${filiation}<br>
+        <p class="certificat-eleve-nom"><strong>${esc(el.nom)} ${esc(el.prenom)}</strong> (Sexe : <strong>${esc(el.sexe)||'—'}</strong>)${naissance}${filiation}<br>
         immatriculé(e) sous le numéro <strong>${esc(el.matricule)}</strong>,</p>
         <p>${corpsTexte}</p>
         <p>${formuleFinale}</p>
@@ -3433,7 +3796,7 @@ function buildCertificatNonRedevanceHTML(eleveId){
       <h2>Certificat de non-redevance</h2>
       <div class="certificat-corps">
         <p>${introTexte}</p>
-        <p class="certificat-eleve-nom"><strong>${esc(el.nom)} ${esc(el.prenom)}</strong>,${filiation} immatriculé(e) sous le numéro <strong>${esc(el.matricule)}</strong>,
+        <p class="certificat-eleve-nom"><strong>${esc(el.nom)} ${esc(el.prenom)}</strong> (Sexe : <strong>${esc(el.sexe)||'—'}</strong>),${filiation} immatriculé(e) sous le numéro <strong>${esc(el.matricule)}</strong>,
         inscrit(e) en classe de <strong>${esc(el.classe)}</strong> au titre de l'année scolaire <strong>${anneeLib}</strong>,</p>
         <p>${statutTexte}</p>
         <p>${formuleFinale}</p>
@@ -3470,6 +3833,18 @@ function formatRangOrdinal(rang, exAequo){
   return rang + (rang===1?'er':'e') + (exAequo?' ex':'');
 }
 
+// Sceau décoratif (médaillon doré à ruban) apposé sur les attestations d'honneur — purement
+// ornemental, un simple SVG en ligne, pas un filigrane de sécurité.
+function attestationSceauSVG(){
+  return `<svg class="attestation-sceau" viewBox="0 0 100 130" xmlns="http://www.w3.org/2000/svg">
+    <path d="M35 60 L20 125 L50 108 L80 125 L65 60 Z" fill="#B08D2B" opacity="0.85"/>
+    <path d="M35 60 L20 125 L50 108" fill="#8a6d1f" opacity="0.6"/>
+    <circle cx="50" cy="42" r="40" fill="#F7F6F2" stroke="#B08D2B" stroke-width="3"/>
+    <circle cx="50" cy="42" r="32" fill="none" stroke="#B08D2B" stroke-width="1.2" stroke-dasharray="2 3"/>
+    <path d="M50 20 L54.5 34 L69 34 L57.5 42.5 L62 57 L50 48 L38 57 L42.5 42.5 L31 34 L45.5 34 Z" fill="#1F3864"/>
+  </svg>`;
+}
+
 function buildAttestationFelicitationsHTML(eleveId, trimestre, mentionObj){
   const el = ELEVES.find(e=>e.id===eleveId);
   if(!el) return '<p>Élève introuvable.</p>';
@@ -3503,19 +3878,22 @@ function buildAttestationFelicitationsHTML(eleveId, trimestre, mentionObj){
   }
 
   return `
-    <div class="attestation">
+    <div class="attestation-honneur">
       ${watermark}
-      ${printHeader()}
-      <div class="attestation-titre-doc">${esc(schoolName)}</div>
+      <div class="attestation-coin haut-gauche"></div><div class="attestation-coin haut-droit"></div>
+      <div class="attestation-coin bas-gauche"></div><div class="attestation-coin bas-droit"></div>
+      ${LOGO_DATA_URL ? `<img class="attestation-logo" src="${LOGO_DATA_URL}" alt="Logo">` : ''}
+      <div class="attestation-titre-doc">${schoolName}</div>
       <h1>${titre}</h1>
       <div class="attestation-souslabel">Année scolaire ${anneeLib} — ${esc(trimestre)}</div>
       <div class="attestation-ornement">✦ ✦ ✦</div>
       <div class="attestation-texte">${introTexte}</div>
       <div class="attestation-nom">${esc(el.nom)} ${esc(el.prenom)}</div>
-      <div class="attestation-texte">Élève en classe de <strong>${esc(el.classe)}</strong>,
+      <div class="attestation-texte">Élève (Sexe : <strong>${esc(el.sexe)||'—'}</strong>) en classe de <strong>${esc(el.classe)}</strong>,
         ${esc(mentionObj?.texte || "pour son excellent travail")} au cours du ${esc(trimestre)} de l'année scolaire ${anneeLib}.</div>
       ${blocMoyennes}
       <div class="attestation-mention">${mentionFinale}</div>
+      ${attestationSceauSVG()}
       <table class="signature-table">
         <tr>
           <td><div class="sig-label">Fait le ${today}</div></td>
@@ -3551,13 +3929,13 @@ function buildAvisBaisseResultatsHTML(eleveId, trimestre){
     <div class="attestation avertissement">
       ${watermark}
       ${printHeader()}
-      <div class="attestation-titre-doc">${esc(schoolName)}</div>
+      <div class="attestation-titre-doc">${schoolName}</div>
       <h1>${esc(PARAMS.avertissementBaisseTitre)}</h1>
       <div class="attestation-souslabel">Année scolaire ${anneeLib} — ${esc(trimestre)}</div>
       <div class="attestation-ornement">⚠</div>
       <div class="attestation-texte">${introTexte}</div>
       <div class="attestation-nom">${esc(el.nom)} ${esc(el.prenom)}</div>
-      <div class="attestation-texte">Élève en classe de <strong>${esc(el.classe)}</strong>, dont les résultats affichent une baisse au cours du ${esc(trimestre)} de l'année scolaire ${anneeLib}.</div>
+      <div class="attestation-texte">Élève (Sexe : <strong>${esc(el.sexe)||'—'}</strong>) en classe de <strong>${esc(el.classe)}</strong>, dont les résultats affichent une baisse au cours du ${esc(trimestre)} de l'année scolaire ${anneeLib}.</div>
       ${blocMoyennes}
       <div class="attestation-mention">${mentionFinale}</div>
       <table class="signature-table">
@@ -3581,10 +3959,12 @@ function buildAttestationReconnaissanceHTML(personnelId, motif){
   const introTexte = esc(PARAMS.attestationReconnaissanceIntro).replace(/\{etablissement\}/g, `<strong>${schoolName}</strong>`);
   const mentionFinale = esc(PARAMS.attestationReconnaissanceMentionFinale);
   return `
-    <div class="attestation">
+    <div class="attestation-honneur">
       ${watermark}
-      ${printHeader()}
-      <div class="attestation-titre-doc">${esc(schoolName)}</div>
+      <div class="attestation-coin haut-gauche"></div><div class="attestation-coin haut-droit"></div>
+      <div class="attestation-coin bas-gauche"></div><div class="attestation-coin bas-droit"></div>
+      ${LOGO_DATA_URL ? `<img class="attestation-logo" src="${LOGO_DATA_URL}" alt="Logo">` : ''}
+      <div class="attestation-titre-doc">${schoolName}</div>
       <h1>Attestation de reconnaissance</h1>
       <div class="attestation-souslabel">Année scolaire ${anneeLib}</div>
       <div class="attestation-ornement">✦ ✦ ✦</div>
@@ -3593,6 +3973,7 @@ function buildAttestationReconnaissanceHTML(personnelId, motif){
       <div class="attestation-texte">${esc(p.fonction)}${p.matiere?' — '+esc(p.matiere):''} au sein de l'établissement,
         ${esc(motif || "pour son engagement et la qualité de son travail durant l'année scolaire")} ${anneeLib}.</div>
       <div class="attestation-mention">${mentionFinale}</div>
+      ${attestationSceauSVG()}
       <table class="signature-table">
         <tr>
           <td><div class="sig-label">Fait le ${today}</div></td>
@@ -3627,7 +4008,7 @@ function buildConvocationPaiementHTML(eleveId, dateConv, heureConv, lieuConv){
       <h2>Lettre de convocation</h2>
       <div class="certificat-corps">
         <p>À l'attention de : Parent(s) / Tuteur(trice) de l'élève <strong>${esc(el.nom)} ${esc(el.prenom)}</strong>,
-        classe de <strong>${esc(el.classe)}</strong> (matricule <strong>${esc(el.matricule)}</strong>)${el.contact?', contact : '+esc(el.contact):''}.</p>
+        classe de <strong>${esc(el.classe)}</strong> (matricule <strong>${esc(el.matricule)}</strong>, sexe : <strong>${esc(el.sexe)||'—'}</strong>)${el.contact?', contact : '+esc(el.contact):''}.</p>
         <p>${introTexte}</p>
         <p>${motifTexte}</p>
         <p>${rdvTexte}</p>
@@ -3664,7 +4045,7 @@ function buildConvocationAbsencesHTML(eleveId, trimestre, dateConv, heureConv, l
       <h2>Lettre de convocation</h2>
       <div class="certificat-corps">
         <p>À l'attention de : Parent(s) / Tuteur(trice) de l'élève <strong>${esc(el.nom)} ${esc(el.prenom)}</strong>,
-        classe de <strong>${esc(el.classe)}</strong> (matricule <strong>${esc(el.matricule)}</strong>)${el.contact?', contact : '+esc(el.contact):''}.</p>
+        classe de <strong>${esc(el.classe)}</strong> (matricule <strong>${esc(el.matricule)}</strong>, sexe : <strong>${esc(el.sexe)||'—'}</strong>)${el.contact?', contact : '+esc(el.contact):''}.</p>
         <p>${introTexte}</p>
         <p>${motifTexte}</p>
         <p>${rdvTexte}</p>
@@ -4087,7 +4468,7 @@ function buildHistoriqueEleveHTML(eleveId){
   return `
     <div class="bulletin" style="max-width:760px;">
       ${printHeader()}
-      <h3>Historique scolaire — ${esc(el0.nom)} ${esc(el0.prenom)}${el0.matricule?' (matricule '+esc(el0.matricule)+')':''}</h3>
+      <h3>Historique scolaire — ${esc(el0.nom)} ${esc(el0.prenom)} (Sexe : ${esc(el0.sexe)||'—'})${el0.matricule?' — matricule '+esc(el0.matricule):''}</h3>
       <table class="receipt-table">
         <thead><tr><th>Année scolaire</th><th>Classe</th><th>Moyenne annuelle</th><th>Rang</th><th>Décision</th></tr></thead>
         <tbody>${rows || '<tr><td colspan="5">Aucun historique disponible pour cet élève.</td></tr>'}</tbody>
@@ -4156,13 +4537,12 @@ function assiduiteEleveTrimestre(eleveId, trimestre){
 }
 
 // Variante utilisée uniquement pour le calcul des réductions de points (discipline) : une absence
-// JUSTIFIÉE (certificat médical, etc.) n'est pas une faute et ne doit donc pas être pénalisée —
-// contrairement à assiduiteEleveTrimestre ci-dessus, qui sert aux statistiques générales de
-// présence et compte toutes les absences, justifiées ou non. Les retards n'ont pas de statut
-// justifié/non justifié dans le module Absences : ils comptent donc tous, comme avant.
+// ou un retard JUSTIFIÉ (certificat médical, etc.) n'est pas une faute et ne doit donc pas être
+// pénalisé — contrairement à assiduiteEleveTrimestre ci-dessus, qui sert aux statistiques
+// générales de présence et compte toutes les absences/retards, justifiés ou non.
 function assiduiteDisciplinaireTrimestre(eleveId, trimestre){
   const entrees = ABSENCES.filter(a=>a.eleveId===eleveId && trimestrePourDate(a.date)===trimestre);
-  const heuresRetard = entrees.filter(a=>a.type==='retard').reduce((s,a)=>s+(Number(a.heuresRetard)||0), 0);
+  const heuresRetard = entrees.filter(a=>a.type==='retard' && !a.justifiee).reduce((s,a)=>s+(Number(a.heuresRetard)||0), 0);
   const joursAbsence = entrees.filter(a=>a.type!=='retard' && !a.justifiee).length;
   return { heuresRetard, joursAbsence };
 }
@@ -4352,7 +4732,7 @@ function renderAbsences(){
           <option value="retard" ${statut==='retard'?'selected':''}>Retard</option>
         </select>
       </td>
-      <td class="cell-justifiee" style="${statut!=='absent'?'display:none;':''}"><input type="checkbox" class="chk-justifiee" ${abs?.justifiee?'checked':''}></td>
+      <td class="cell-justifiee" style="${statut==='present'?'display:none;':''}"><input type="checkbox" class="chk-justifiee" ${abs?.justifiee?'checked':''}></td>
       <td class="cell-heure" style="${statut!=='retard'?'display:none;':''}"><input type="number" min="0" step="0.25" class="txt-heures-retard" value="${abs?.heuresRetard??''}" placeholder="Nb d'heures"></td>
       <td><input type="text" class="txt-motif" value="${esc(abs?.motif)||''}" placeholder="Motif (facultatif)" ${statut==='present'?'disabled':''}></td>
     </tr>`;
@@ -4371,7 +4751,7 @@ function renderAbsences(){
     const el = ELEVES.find(e=>e.id===a.eleveId);
     const estRetard = a.type==='retard';
     const detail = estRetard
-      ? `${a.heuresRetard??'—'} h de retard`
+      ? `${a.heuresRetard??'—'} h de retard <span class="badge ${a.justifiee?'paye':'impaye'}">${a.justifiee?'Justifié':'Non justifié'}</span>`
       : `<span class="badge ${a.justifiee?'paye':'impaye'}">${a.justifiee?'Justifiée':'Non justifiée'}</span>`;
     return `<tr><td>${a.date}</td><td>${el?esc(el.nom)+' '+esc(el.prenom):'—'}</td>
       <td>${estRetard?'Retard':'Absence'}</td>
@@ -4461,6 +4841,7 @@ function buildFeuilleAppelHTML(classe, date){
       <td style="text-align:center;">${estAbsent && abs.justifiee ? '✓' : ''}</td>
       <td style="text-align:center;">${estRetard ? '✗' : ''}</td>
       <td style="text-align:center;">${estRetard ? (abs.heuresRetard??'') : ''}</td>
+      <td style="text-align:center;">${estRetard && abs.justifiee ? '✓' : ''}</td>
       <td>${abs?esc(abs.motif)||'':''}</td></tr>`;
   }).join('');
   return `
@@ -4469,8 +4850,8 @@ function buildFeuilleAppelHTML(classe, date){
       <h3>Feuille d'appel — ${esc(classe)}</h3>
       <p class="bulletin-eleve-line">Date : ${date}</p>
       <table class="receipt-table">
-        <thead><tr><th>N°</th><th>Matricule</th><th>Nom et prénom</th><th>Absent</th><th>Justifiée</th><th>Retard</th><th>Heures de retard</th><th>Motif</th></tr></thead>
-        <tbody>${rows || '<tr><td colspan="8">Aucun élève.</td></tr>'}</tbody>
+        <thead><tr><th>N°</th><th>Matricule</th><th>Nom et prénom</th><th>Absent</th><th>Justifiée</th><th>Retard</th><th>Heures de retard</th><th>Justifié</th><th>Motif</th></tr></thead>
+        <tbody>${rows || '<tr><td colspan="9">Aucun élève.</td></tr>'}</tbody>
       </table>
       <table class="signature-table">
         <tr><td><div class="sig-label">Le Professeur / Surveillant</div><div class="sig-line">Signature</div></td></tr>
@@ -4585,10 +4966,32 @@ function buildEmploiDuTempsHTML(classe){
 
 /* ---------- Paramètres ---------- */
 function renderInfosAdmin(){
+  // Journal d'audit : les entrées les plus récentes en premier, limité à l'affichage des 200
+  // dernières (le journal complet, jusqu'à 5000 entrées, reste exporté intégralement en CSV).
+  const entreesRecentes = JOURNAL.slice().reverse().slice(0, 200);
+  const lignesJournal = entreesRecentes.map(j=>`
+    <tr>
+      <td style="white-space:nowrap;">${new Date(j.date).toLocaleString('fr-FR')}</td>
+      <td>${esc(j.utilisateur)}</td>
+      <td>${esc(j.action)}</td>
+      <td>${esc(j.details)}</td>
+    </tr>
+  `).join('');
   return `
   <div class="panel">
     <div class="panel-head"><h3>À propos de ce logiciel</h3></div>
     <p style="font-size:14px;line-height:1.7;">Ce logiciel a été développé par BAMA Nékilma. Pour tout besoin contacter le 67909051 ou le 70148342. Merci pour votre confiance.</p>
+  </div>
+
+  <div class="panel">
+    <div class="panel-head"><h3>Journal d'audit</h3><p class="desc" style="width:100%;">Trace qui a fait quoi et quand pour les actions sensibles : suppressions, paiements/dépenses, comptes utilisateurs, bascule d'année, restauration de sauvegarde. Une restauration de sauvegarde ne l'efface jamais. ${JOURNAL.length} entrée(s) au total${JOURNAL.length>200?' — les 200 plus récentes sont affichées ci-dessous':''}.</p></div>
+    <div class="table-wrap" style="max-height:420px;overflow:auto;">
+      <table>
+        <thead><tr><th>Date</th><th>Utilisateur</th><th>Action</th><th>Détails</th></tr></thead>
+        <tbody>${lignesJournal || '<tr class="empty-row"><td colspan="4">Aucune action journalisée pour l\'instant.</td></tr>'}</tbody>
+      </table>
+    </div>
+    <button class="btn secondary small" style="margin-top:10px;" data-action="export-journal">Exporter tout le journal (CSV)</button>
   </div>
   `;
 }
@@ -4781,9 +5184,9 @@ function renderParametres(){
   <div class="panel">
     <div class="panel-head"><h3>Sauvegarde de sécurité</h3><p class="desc" style="width:100%;">Vos données sont déjà enregistrées automatiquement sur cet ordinateur. Téléchargez aussi un fichier de secours de temps en temps (avant une réinstallation, un changement d'ordinateur, ou pour garder une copie).</p></div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-      <button class="btn gold" id="btn-export">Télécharger une sauvegarde (.json)</button>
+      <button class="btn gold" id="btn-export">Télécharger une sauvegarde (.json.gz)</button>
       <label class="btn secondary" style="cursor:pointer;">Restaurer une sauvegarde
-        <input type="file" id="input-import" accept="application/json" style="display:none;">
+        <input type="file" id="input-import" accept="application/json,.json,.gz,.json.gz" style="display:none;">
       </label>
     </div>
     <p class="muted" style="margin-top:8px;">${(() => { const d = storageGet('derniere-sauvegarde-le'); return d ? 'Dernière sauvegarde téléchargée : '+new Date(d).toLocaleString('fr-FR') : "Aucune sauvegarde téléchargée pour l'instant."; })()}</p>
@@ -4809,10 +5212,11 @@ function renderParametres(){
       <div class="field"><label>Titre du responsable</label><input name="directeurTitre" value="${esc(PARAMS.directeurTitre)}" placeholder="ex: Directeur, Proviseur, Directrice..."></div>
       <div class="field"><label>Nom du responsable</label><input name="directeurNom" value="${esc(PARAMS.directeurNom)}" placeholder="ex: M. Ouédraogo Jean"></div>
       <div class="field"><label>Numéro du responsable</label><input name="directeurTelephone" value="${esc(PARAMS.directeurTelephone)}" placeholder="+226 ..."></div>
+      <div class="field"><label>Numéro(s) de l'établissement</label><input name="etablissementTelephone" value="${esc(PARAMS.etablissementTelephone)}" placeholder="ex: +226 25 00 00 00 / +226 70 00 00 00"></div>
       <div class="field"><label>Devise de l'établissement (bulletin)</label><input name="etablissementDevise" value="${esc(PARAMS.etablissementDevise)}" placeholder="ex: Discipline - Travail - Réussite"></div>
       <button class="btn gold" type="submit">Enregistrer</button>
     </form>
-    <p class="muted" style="margin-top:8px;">Les deux pourcentages doivent totaliser 100 (actuellement : ${Number(PARAMS.ponderationDevoirs)+Number(PARAMS.ponderationComposition)}). Le titre (« Directeur », « Proviseur »...) remplace automatiquement le mot « Directeur » partout où il apparaît sur les documents imprimés.</p>
+    <p class="muted" style="margin-top:8px;">Les deux pourcentages doivent totaliser 100 (actuellement : ${Number(PARAMS.ponderationDevoirs)+Number(PARAMS.ponderationComposition)}). Le titre (« Directeur », « Proviseur »...) remplace automatiquement le mot « Directeur » partout où il apparaît sur les documents imprimés. Le(s) numéro(s) de l'établissement s'affichent en en-tête de tous les documents délivrés (bulletins, certificats, attestations, reçus, convocations...).</p>
   </div>
 
   <div class="panel">
@@ -5250,15 +5654,19 @@ function openPrint(html){
   // en portrait (format A4 standard). Le format de page (@page) est global à toute l'impression,
   // donc basculé dynamiquement selon le contenu à imprimer plutôt que fixé une fois pour toutes.
   const orientStyle = document.getElementById('print-orientation-override');
-  if(orientStyle) orientStyle.textContent = (html.includes('fiche-paie') || html.includes('emploi-temps-print'))
+  if(orientStyle) orientStyle.textContent = (html.includes('fiche-paie') || html.includes('emploi-temps-print') || html.includes('attestation-honneur'))
     ? '@media print{ @page{ size:A4 landscape; margin:10mm; } }'
     : '';
   const root = document.getElementById('print-preview-root');
+  // Le bouton PDF natif n'apparaît que dans le build Electron (window.pdfAPI exposé par
+  // preload.js) : absent en Capacitor/Android, où l'impression système reste la seule voie.
+  const boutonPdf = window.pdfAPI ? `<button class="btn secondary small" id="print-preview-pdf" type="button">Télécharger en PDF</button>` : '';
   root.innerHTML = `
     <div class="print-preview-backdrop" id="print-preview-backdrop">
       <div class="print-preview-toolbar">
         <span>Aperçu avant impression</span>
         <button class="btn secondary small" id="print-preview-close" type="button">Fermer</button>
+        ${boutonPdf}
         <button class="btn small" id="print-preview-go" type="button">Imprimer</button>
       </div>
       <div class="print-preview-page">${html}</div>
@@ -5271,6 +5679,27 @@ function openPrint(html){
   document.getElementById('print-preview-go').addEventListener('click', ()=>{
     document.getElementById('print-area').innerHTML = html;
     window.print();
+  });
+  document.getElementById('print-preview-pdf')?.addEventListener('click', async (e)=>{
+    const bouton = e.currentTarget;
+    const texteInitial = bouton.textContent;
+    bouton.disabled = true; bouton.textContent = 'Génération…';
+    try{
+      // Document HTML autonome : tous les <style> de la page en cours (le CSS complet de
+      // l'application, un seul fichier) + le fragment à imprimer, pour que la fenêtre PDF
+      // cachée du processus principal affiche exactement le même rendu que l'aperçu à l'écran.
+      const stylesActuels = Array.from(document.querySelectorAll('style')).map(s=>s.outerHTML).join('\n');
+      const documentComplet = `<!DOCTYPE html><html><head><meta charset="utf-8">${stylesActuels}</head><body>${html}</body></html>`;
+      const nomFichier = 'document_' + new Date().toISOString().slice(0,10);
+      const resultat = await window.pdfAPI.exporterPDF(documentComplet, nomFichier);
+      if(resultat?.erreur){ showToast("Erreur lors de l'export PDF"); console.error(resultat.erreur); }
+      else if(!resultat?.annule) showToast('PDF enregistré : ' + resultat.chemin);
+    } catch(err){
+      showToast("Erreur lors de l'export PDF");
+      console.error(err);
+    } finally {
+      bouton.disabled = false; bouton.textContent = texteInitial;
+    }
   });
   window.addEventListener('afterprint', close, {once:true});
 }
@@ -5416,6 +5845,7 @@ function buildReceiptHTML(paiement){
       <h3>Reçu de paiement — N° ${numero}</h3>
       <table class="receipt-table">
         <tr><td>Élève</td><td>${el?esc(el.nom)+' '+esc(el.prenom):'—'}</td></tr>
+        <tr><td>Sexe</td><td>${el?(esc(el.sexe)||'—'):'—'}</td></tr>
         <tr><td>Classe</td><td>${el?esc(el.classe):'—'}</td></tr>
         <tr><td>Date du versement</td><td>${esc(paiement.date)}</td></tr>
         <tr><td>Montant versé ce jour</td><td>${fmt(paiement.montant)}</td></tr>
@@ -5448,6 +5878,12 @@ function buildBulletinHTML(eleveId, trimestre){
   // Statut de redoublement déduit automatiquement de l'historique de l'établissement
   // (voir estRedoublantAnneeCourante) — n'a plus besoin d'être saisi à la main.
   const redoublant = estRedoublantAnneeCourante(eleveId);
+  // Classe doublée : el.classeDejaDoublee est désormais figé dès le redoublement (voir
+  // basculerAnneeScolaire et la synchronisation au chargement) et reste affiché tel quel
+  // même les années suivantes, une fois l'élève passé en classe supérieure — le statut de
+  // redoublant reste acquis jusqu'à la fin du cycle. Le repli sur el.classe ne sert que
+  // pour l'instant même où le redoublement vient d'être détecté, avant la prochaine sauvegarde.
+  const classeDoublee = el.classeDejaDoublee || (redoublant ? el.classe : '');
   const moyClasseParMatiere = moyennesClasseParMatiere(el.classe, trimestre);
 
   // Matières groupées par catégorie (ordre : PARAMS.categoriesMatieres) avec, à la fin de
@@ -5535,8 +5971,10 @@ function buildBulletinHTML(eleveId, trimestre){
       ${printHeader()}
       <h3>Bulletin de notes — ${esc(trimestre)}</h3>
       <div class="bulletin-identite">
-        <span><span class="id-nom">${esc(el.nom)} ${esc(el.prenom)}</span> &nbsp;·&nbsp; Classe : ${esc(el.classe)}${redoublant?'<span class="badge-redoublant">Redoublant(e)</span>':''}</span>
+        <span><span class="id-nom">${esc(el.nom)} ${esc(el.prenom)}</span> &nbsp;·&nbsp; Classe : ${esc(el.classe)}</span>
       </div>
+      <div class="bulletin-info-ligne">Né(e) le <strong>${formatDateFrCourt(el.dateNaissance)||'—'}</strong> à <strong>${esc(el.lieuNaissance)||'—'}</strong> &nbsp;·&nbsp; Sexe : <strong>${esc(el.sexe)||'—'}</strong> &nbsp;·&nbsp; Matricule : <strong>${esc(el.matricule)||'—'}</strong></div>
+      <div class="bulletin-info-ligne">Classe doublée : <strong>${classeDoublee ? esc(classeDoublee) : 'Néant'}</strong></div>
       <div class="bulletin-info-ligne">Effectif de la classe : <strong>${classement.effectif}</strong></div>
       <div class="bulletin-info-ligne">Aptitude sportive : ${data.dispenseSport ? `Dispensé${data.motifSportDispense?' ('+esc(data.motifSportDispense)+')':''}` : 'Apte'}</div>
 
@@ -5570,7 +6008,7 @@ function buildBulletinHTML(eleveId, trimestre){
 function buildClasseBulletinsHTML(classe, trimestre){
   _classementCacheActif = new Map();
   try {
-    const eleves = ELEVES.filter(e=>e.classe===classe).sort((a,b)=>a.nom.localeCompare(b.nom));
+    const eleves = ELEVES.filter(e=>e.classe===classe && e.statut!=='Inactif').sort((a,b)=>a.nom.localeCompare(b.nom));
     return eleves.map((e,i)=> `<div style="${i<eleves.length-1?'page-break-after:always;':''}">${buildBulletinHTML(e.id, trimestre)}</div>`).join('');
   } finally {
     _classementCacheActif = null;
@@ -5582,7 +6020,7 @@ function buildClasseBulletinsHTML(classe, trimestre){
 function buildGrilleNotesPrintHTML(classe, matiereId, trimestre){
   const schoolName = esc(document.getElementById('school-name').value);
   const matiere = matieresPourClasse(classe).find(m=>m.id===matiereId);
-  const eleves = ELEVES.filter(e=>e.classe===classe).sort((a,b)=>a.nom.localeCompare(b.nom));
+  const eleves = ELEVES.filter(e=>e.classe===classe && e.statut!=='Inactif').sort((a,b)=>a.nom.localeCompare(b.nom));
   const cl = classementParMatiere(classe, matiereId, trimestre);
   const rows = eleves.map((e)=>{
     const n = NOTES.find(x=>x.eleveId===e.id && x.matiereId===matiereId && x.trimestre===trimestre);
@@ -5613,7 +6051,7 @@ function buildGrilleNotesPrintHTML(classe, matiereId, trimestre){
 // professeur principal pour vérifier toutes les notes de tous les élèves en une seule fois.
 function buildFicheRecapGeneraleClassePrintHTML(classe, trimestre){
   const matieres = matieresPourClasse(classe);
-  const eleves = ELEVES.filter(e=>e.classe===classe).sort((a,b)=>a.nom.localeCompare(b.nom));
+  const eleves = ELEVES.filter(e=>e.classe===classe && e.statut!=='Inactif').sort((a,b)=>a.nom.localeCompare(b.nom));
   const clGenerale = classementClasse(classe, trimestre);
   const classementsMatieres = matieres.map(m=>classementParMatiere(classe, m.id, trimestre));
   const rows = eleves.map(e=>{
@@ -5649,7 +6087,7 @@ function buildFicheRecapGeneraleClassePrintHTML(classe, trimestre){
 // vérification en classe par le professeur principal avant impression des bulletins.
 function buildFicheResultatsTrimestrePrintHTML(classe, trimestre){
   const schoolName = esc(document.getElementById('school-name').value);
-  const eleves = ELEVES.filter(e=>e.classe===classe).sort((a,b)=>a.nom.localeCompare(b.nom));
+  const eleves = ELEVES.filter(e=>e.classe===classe && e.statut!=='Inactif').sort((a,b)=>a.nom.localeCompare(b.nom));
   const cl = classementClasse(classe, trimestre);
   const rows = eleves.map((e)=>{
     const t = computeTrimestre(e.id, trimestre);
@@ -5683,7 +6121,7 @@ function buildGrilleBlancPrintHTML(classe, matiereId, examenBlancId){
   const schoolName = esc(document.getElementById('school-name').value);
   const matiere = matieresPourClasse(classe).find(m=>m.id===matiereId);
   const session = EXAMENS_BLANCS.find(eb=>eb.id===examenBlancId);
-  const eleves = ELEVES.filter(e=>e.classe===classe).sort((a,b)=>a.nom.localeCompare(b.nom));
+  const eleves = ELEVES.filter(e=>e.classe===classe && e.statut!=='Inactif').sort((a,b)=>a.nom.localeCompare(b.nom));
   const rows = eleves.map((e,i)=>{
     const n = NOTES_BLANC.find(x=>x.eleveId===e.id && x.matiereId===matiereId && x.examenBlancId===examenBlancId);
     const val = n && n.note!==null && n.note!==undefined ? n.note : null;
@@ -5728,7 +6166,7 @@ function buildDeliberationBlancHTML(classe, examenBlancId, decisionCle){
   const session = EXAMENS_BLANCS.find(eb=>eb.id===examenBlancId);
   const labelParCle = { admis: PARAMS.libelleAdmis, admissible: PARAMS.libelleAdmissible, ajourne: PARAMS.libelleAjourne };
   const decisionLabel = labelParCle[decisionCle] || decisionCle;
-  const eleves = ELEVES.filter(e=>e.classe===classe)
+  const eleves = ELEVES.filter(e=>e.classe===classe && e.statut!=='Inactif')
     .filter(e=>{
       const moy = computeExamenBlanc(e.id, examenBlancId).moyenneGenerale;
       return decisionFinaleBlanc(e.id, examenBlancId, classe, moy).decision === decisionLabel;
@@ -5809,6 +6247,16 @@ function attachHandlers(){
     document.getElementById('new-eleve-affectation')?.addEventListener('change', majFraisSuggere);
     majFraisSuggere();
 
+    // Le champ « classe déjà doublée » n'a de sens que si l'élève a déjà redoublé avant son
+    // arrivée — masqué par défaut, affiché seulement quand « Oui » est sélectionné.
+    const toggleClasseDoublee = ()=>{
+      const majDejaRedouble = document.getElementById('new-eleve-a-deja-redouble')?.value;
+      const wrap = document.getElementById('new-eleve-classe-doublee-wrap');
+      if(wrap) wrap.style.display = majDejaRedouble==='1' ? '' : 'none';
+    };
+    document.getElementById('new-eleve-a-deja-redouble')?.addEventListener('change', toggleClasseDoublee);
+    toggleClasseDoublee();
+
     document.getElementById('form-eleve')?.addEventListener('submit', async (e)=>{
       e.preventDefault();
       const f = new FormData(e.target);
@@ -5846,7 +6294,7 @@ function attachHandlers(){
         statutSport: f.get('statutSport')||'Apte', motifDispenseSport: '',
         anneeEnregistrement: (f.get('anneeEnregistrement')||'').trim(),
         fraisAnnuel: Number(f.get('fraisAnnuel'))||0, statut: f.get('statut'),
-        aDejaRedouble: f.get('aDejaRedouble')==='1' });
+        aDejaRedouble: f.get('aDejaRedouble')==='1', classeDejaDoublee: f.get('aDejaRedouble')==='1' ? (f.get('classeDejaDoublee')||'').trim() : '' });
       await saveEleves();
       showToast('Élève ajouté');
       render();
@@ -5864,6 +6312,12 @@ function attachHandlers(){
     });
 
     document.getElementById('content').addEventListener('click', async (e)=>{
+      const modifierBtn = e.target.closest('[data-action="modifier-eleve"]');
+      if(modifierBtn){
+        const ok = await ouvrirModaleEditionEleve(modifierBtn.dataset.id);
+        if(ok){ showToast('Fiche élève mise à jour'); render(); }
+        return;
+      }
       const changerClasseBtn = e.target.closest('[data-action="changer-classe-eleve"]');
       if(changerClasseBtn){
         const el = ELEVES.find(x=>x.id===changerClasseBtn.dataset.id);
@@ -5890,10 +6344,13 @@ function attachHandlers(){
       const delBtn = e.target.closest('[data-action="del-eleve"]');
       if(delBtn){
         if(!(await confirmerAvecCode('Supprimer définitivement cet élève et toutes ses données (notes, paiements) ?'))) return;
+        const elASupprimer = ELEVES.find(x=>x.id===delBtn.dataset.id);
         ELEVES = ELEVES.filter(x=>x.id!==delBtn.dataset.id);
         await imageDBSet('photo-'+delBtn.dataset.id, null);
         await purgerDonneesEleve(delBtn.dataset.id);
-        await saveEleves(); showToast('Élève supprimé'); render(); return;
+        await saveEleves();
+        journaliser('Suppression élève', elASupprimer ? `${elASupprimer.nom} ${elASupprimer.prenom} (classe ${elASupprimer.classe}, matricule ${elASupprimer.matricule||'—'})` : delBtn.dataset.id);
+        showToast('Élève supprimé'); render(); return;
       }
       const printListe = e.target.closest('[data-action="print-classe-eleves"]');
       if(printListe){ openPrint(buildClasseElevesListHTML(printListe.dataset.classe)); return; }
@@ -6221,6 +6678,8 @@ function attachHandlers(){
       FINANCES.paiements.push({ id: uid(), eleveId: f.get('eleveId'), montant,
         date: f.get('date'), statut: f.get('statut') });
       await saveFinances();
+      const elPaiement = ELEVES.find(x=>x.id===f.get('eleveId'));
+      journaliser('Paiement enregistré', `${fmt(montant)} — ${elPaiement?elPaiement.nom+' '+elPaiement.prenom:'élève inconnu'}`);
       showToast('Paiement enregistré');
       render();
     });
@@ -6232,14 +6691,21 @@ function attachHandlers(){
       FINANCES.depenses.push({ id: uid(), libelle: f.get('libelle'), categorie: f.get('categorie'),
         montant, date: f.get('date') });
       await saveFinances();
+      journaliser('Dépense enregistrée', `${fmt(montant)} — ${f.get('libelle')||''}`);
       showToast('Dépense enregistrée');
       render();
     });
     document.querySelectorAll('[data-action="del-paiement"]').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         if(!(await confirmerAvecCode('Supprimer ce paiement ?'))) return;
+        const pASupprimer = FINANCES.paiements.find(x=>x.id===btn.dataset.id);
         FINANCES.paiements = FINANCES.paiements.filter(x=>x.id!==btn.dataset.id);
-        await saveFinances(); showToast('Paiement supprimé'); render();
+        await saveFinances();
+        if(pASupprimer){
+          const elP = ELEVES.find(x=>x.id===pASupprimer.eleveId);
+          journaliser('Suppression paiement', `${fmt(pASupprimer.montant)} — ${elP?elP.nom+' '+elP.prenom:'élève inconnu'}`);
+        }
+        showToast('Paiement supprimé'); render();
       });
     });
     document.querySelectorAll('[data-action="recu-paiement"]').forEach(btn=>{
@@ -6251,8 +6717,11 @@ function attachHandlers(){
     document.querySelectorAll('[data-action="del-depense"]').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         if(!(await confirmerAvecCode('Supprimer cette dépense ?'))) return;
+        const dASupprimer = FINANCES.depenses.find(x=>x.id===btn.dataset.id);
         FINANCES.depenses = FINANCES.depenses.filter(x=>x.id!==btn.dataset.id);
-        await saveFinances(); showToast('Dépense supprimée'); render();
+        await saveFinances();
+        if(dASupprimer) journaliser('Suppression dépense', `${fmt(dASupprimer.montant)} — ${dASupprimer.libelle||''}`);
+        showToast('Dépense supprimée'); render();
       });
     });
 
@@ -6369,7 +6838,9 @@ function attachHandlers(){
         }
         if(!(await confirmerAvecCode('Supprimer ce membre du personnel ?'))) return;
         PERSONNEL = PERSONNEL.filter(x=>x.id!==btn.dataset.id);
-        await savePersonnel(); showToast('Membre supprimé'); render();
+        await savePersonnel();
+        journaliser('Suppression personnel', membre ? `${membre.nom} ${membre.prenom} (${membre.fonction||''})` : btn.dataset.id);
+        showToast('Membre supprimé'); render();
       });
     });
     document.querySelectorAll('[data-action="edit-salaire-fixe"]').forEach(input=>{
@@ -6510,7 +6981,7 @@ function attachHandlers(){
         <button class="btn gold" id="btn-print-doc" style="margin-top:14px;">Imprimer ce document</button>
       `;
       document.getElementById('btn-print-doc').addEventListener('click', ()=>{
-        const node = document.querySelector('#doc-preview .certificat, #doc-preview .attestation, #doc-preview .bulletin, #doc-preview .carte-scolaire-paire, #doc-preview .cartes-grille');
+        const node = document.querySelector('#doc-preview .certificat, #doc-preview .attestation, #doc-preview .attestation-honneur, #doc-preview .bulletin, #doc-preview .carte-scolaire-paire, #doc-preview .cartes-grille');
         if(node) openPrint(node.outerHTML);
       });
     });
@@ -6574,7 +7045,7 @@ function attachHandlers(){
       const txtMotif = tr.querySelector('.txt-motif');
       sel?.addEventListener('change', ()=>{
         const v = sel.value;
-        cellJustifiee.style.display = v==='absent' ? '' : 'none';
+        cellJustifiee.style.display = v==='present' ? 'none' : '';
         cellHeure.style.display = v==='retard' ? '' : 'none';
         txtMotif.disabled = v==='present';
         if(v==='present'){ chkJustifiee.checked = false; txtHeuresRetard.value = ''; txtMotif.value = ''; }
@@ -6592,7 +7063,8 @@ function attachHandlers(){
           ABSENCES.push({ id: uid(), eleveId, date: dateAbsenceSaisie, type:'absent', justifiee, motif });
         } else if(statut==='retard'){
           const heuresRetard = Number(tr.querySelector('.txt-heures-retard').value)||0;
-          ABSENCES.push({ id: uid(), eleveId, date: dateAbsenceSaisie, type:'retard', heuresRetard, motif });
+          const justifiee = tr.querySelector('.chk-justifiee').checked;
+          ABSENCES.push({ id: uid(), eleveId, date: dateAbsenceSaisie, type:'retard', heuresRetard, justifiee, motif });
         }
       });
       await saveAbsences();
@@ -6632,7 +7104,7 @@ function attachHandlers(){
       const lignes = absences.map(a=>{
         const el = ELEVES.find(x=>x.id===a.eleveId);
         const estRetard = a.type==='retard';
-        return [a.date, el?el.nom:'—', el?el.prenom:'—', estRetard?'Retard':'Absence', estRetard?((a.heuresRetard??'')+' h'):(a.justifiee?'Justifiée':'Non justifiée'), a.motif||''];
+        return [a.date, el?el.nom:'—', el?el.prenom:'—', estRetard?'Retard':'Absence', estRetard?`${a.heuresRetard??''} h (${a.justifiee?'Justifié':'Non justifié'})`:(a.justifiee?'Justifiée':'Non justifiée'), a.motif||''];
       });
       exportCSV(`absences_${classe}`, ['Date','Nom','Prénom','Type','Justifiée / Heures de retard','Motif'], lignes);
     });
@@ -6678,6 +7150,13 @@ function attachHandlers(){
     });
   }
 
+  if(currentTab==='admin'){
+    document.querySelector('[data-action="export-journal"]')?.addEventListener('click', ()=>{
+      exportCSV('journal_audit', ['Date','Utilisateur','Action','Détails'],
+        JOURNAL.slice().reverse().map(j=>[new Date(j.date).toLocaleString('fr-FR'), j.utilisateur, j.action, j.details]));
+    });
+  }
+
   if(currentTab==='parametres'){
     document.getElementById('form-utilisateur')?.addEventListener('submit', async (e)=>{
       e.preventDefault();
@@ -6701,6 +7180,7 @@ function attachHandlers(){
       const hash = await hacherMotDePasse(f.get('motDePasse'), sel);
       UTILISATEURS.push({ id: uid(), nom: (f.get('nom')||'').trim(), identifiant, roleLabel, tabs, sel, hash });
       await saveUtilisateurs();
+      journaliser('Création compte utilisateur', `${(f.get('nom')||'').trim()} (${roleLabel}) — accès : ${tabs.join(', ')}`);
       showToast(estPremierCompte ? 'Compte Direction créé — la connexion est maintenant obligatoire à chaque ouverture' : 'Compte créé');
       render();
     });
@@ -6715,6 +7195,7 @@ function attachHandlers(){
         if(!(await confirmerAvecCode('Supprimer ce compte utilisateur ?'))) return;
         UTILISATEURS = UTILISATEURS.filter(u=>u.id!==btn.dataset.id);
         await saveUtilisateurs();
+        journaliser('Suppression compte utilisateur', cible ? `${cible.nom} (${cible.roleLabel||''})` : btn.dataset.id);
         showToast('Compte supprimé');
         render();
       });
@@ -6756,6 +7237,7 @@ function attachHandlers(){
         u.roleLabel = (f.get('roleLabel')||'').trim();
         u.tabs = nouveauxTabs;
         await saveUtilisateurs();
+        journaliser('Modification compte utilisateur', `${u.nom} (${u.roleLabel}) — accès : ${u.tabs.join(', ')}`);
         showToast('Compte mis à jour pour '+u.nom);
         render();
       });
@@ -6778,6 +7260,7 @@ function attachHandlers(){
         u.sel = nouveauSel;
         u.hash = await hacherMotDePasse(nouveauMdp, nouveauSel);
         await saveUtilisateurs();
+        journaliser('Réinitialisation mot de passe', u.nom);
         showToast('Mot de passe réinitialisé pour '+u.nom);
         render();
       });
@@ -6805,7 +7288,9 @@ function attachHandlers(){
         `Cette action est irréversible. Continuer ?`
       );
       if(!ok) return;
+      const ancienLibelle = anneeLibelle(anneeActiveId);
       const bilan = await basculerAnneeScolaire(nouvelleAnnee);
+      journaliser('Bascule année scolaire', `${ancienLibelle} → ${nouvelleAnnee} — passent : ${bilan.passent}, redoublent : ${bilan.redoublent}, exclus : ${bilan.excluent}, sortis : ${bilan.sortent}`);
       alert(`Bascule terminée.\n\nPassent en classe supérieure : ${bilan.passent}\nRedoublent : ${bilan.redoublent}\nExclus : ${bilan.excluent}\nSortis du système (fin de cycle) : ${bilan.sortent}`);
     });
 
@@ -6990,6 +7475,7 @@ function attachHandlers(){
       PARAMS.directeurTitre = f.get('directeurTitre')||'Directeur';
       PARAMS.directeurNom = f.get('directeurNom')||'';
       PARAMS.directeurTelephone = f.get('directeurTelephone')||'';
+      PARAMS.etablissementTelephone = f.get('etablissementTelephone')||'';
       PARAMS.etablissementDevise = f.get('etablissementDevise')||'';
       await saveParams(); showToast('Paramètres enregistrés'); render();
     });
