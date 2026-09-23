@@ -50,7 +50,8 @@ function createWindow() {
 // dialogue "Imprimer" du système, pour un export direct en un clic. Le document est chargé
 // depuis un fichier temporaire plutôt qu'une URL "data:" : certains documents (bulletins avec
 // beaucoup d'élèves, photos en base64) dépassent la limite de longueur d'une URL data:.
-ipcMain.handle('exporter-pdf', async (event, documentHtmlComplet, nomFichierSuggere) => {
+ipcMain.handle('exporter-pdf', async (event, documentHtmlComplet, nomFichierSuggere, options) => {
+  const paysage = !!(options && options.paysage === true);
   const { filePath, canceled } = await dialog.showSaveDialog({
     title: 'Enregistrer en PDF',
     defaultPath: (nomFichierSuggere || 'document') + '.pdf',
@@ -63,10 +64,16 @@ ipcMain.handle('exporter-pdf', async (event, documentHtmlComplet, nomFichierSugg
   try {
     fs.writeFileSync(cheminTemp, documentHtmlComplet, 'utf-8');
     await fenetrePdf.loadFile(cheminTemp);
+    // preferCSSPageSize : la taille et les marges viennent du @page du document (A4 portrait, ou
+    // A4 paysage pour les attestations d'honneur / fiches de paie / emplois du temps). Sans cette
+    // option, le PDF sortait toujours en portrait et l'orientation demandée par le document était
+    // ignorée, d'où des contenus paysage coupés. `landscape` sert de repli si le CSS n'était pas lu.
     const pdfBuffer = await fenetrePdf.webContents.printToPDF({
       printBackground: true,
       pageSize: 'A4',
-      margins: { marginType: 'default' }
+      landscape: paysage,
+      preferCSSPageSize: true,
+      margins: { marginType: 'none' }
     });
     fs.writeFileSync(filePath, pdfBuffer);
     return { annule: false, chemin: filePath };

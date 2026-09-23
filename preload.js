@@ -15,6 +15,6 @@ contextBridge.exposeInMainWorld('licenceAPI', {
 // est exposée, pas ipcRenderer en entier — le renderer ne peut donc pas invoquer n'importe quel
 // canal IPC, seulement demander un export PDF avec un document HTML qu'il fournit lui-même.
 contextBridge.exposeInMainWorld('pdfAPI', {
-  exporterPDF: (documentHtmlComplet, nomFichierSuggere) =>
-    ipcRenderer.invoke('exporter-pdf', documentHtmlComplet, nomFichierSuggere)
+  exporterPDF: (documentHtmlComplet, nomFichierSuggere, options) =>
+    ipcRenderer.invoke('exporter-pdf', documentHtmlComplet, nomFichierSuggere, { paysage: !!(options && options.paysage) })
 });
