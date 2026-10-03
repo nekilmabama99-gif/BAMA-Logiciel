@@ -40,6 +40,15 @@ function createWindow() {
     }
   });
 
+  // Verrouillage de la navigation : l'application est 100 % locale (file://) et n'a aucune raison
+  // d'ouvrir une autre fenêtre ni de charger une page externe. Sans ces deux garde-fous, un lien ou
+  // un contenu inattendu (texte saisi contenant une adresse, document collé...) pourrait faire
+  // naviguer la fenêtre de l'application hors du logiciel, ou en ouvrir une nouvelle.
+  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  win.webContents.on('will-navigate', (event, url) => {
+    if (!url.startsWith('file://')) event.preventDefault();
+  });
+
   win.maximize();
   win.loadFile(path.join(__dirname, 'app', 'index.html'));
   win.once('ready-to-show', () => win.show());
@@ -60,7 +69,10 @@ ipcMain.handle('exporter-pdf', async (event, documentHtmlComplet, nomFichierSugg
   if (canceled || !filePath) return { annule: true };
 
   const cheminTemp = path.join(app.getPath('temp'), 'gestion-ecole-export-' + Date.now() + '.html');
-  const fenetrePdf = new BrowserWindow({ show: false, webPreferences: { offscreen: true } });
+  // javascript:false + sandbox : la fenêtre d'export n'a besoin que de mettre en page du HTML/CSS
+  // statique (déjà assemblé et ajusté côté application). Aucun script ne doit s'y exécuter, même si
+  // du texte saisi par un utilisateur contenait du code : défense en profondeur.
+  const fenetrePdf = new BrowserWindow({ show: false, webPreferences: { offscreen: true, javascript: false, sandbox: true } });
   try {
     fs.writeFileSync(cheminTemp, documentHtmlComplet, 'utf-8');
     await fenetrePdf.loadFile(cheminTemp);
